@@ -2,14 +2,14 @@ import { bigint, pgTable, pgEnum, varchar, text, boolean, timestamp } from "driz
 
 export const genderEnum = pgEnum("gender", ["M", "F"]);
 
-export const roles = pgTable("roles", {
+export const rolesTable = pgTable("roles", {
   id: bigint("id", { mode: "number" })
     .primaryKey(),
   name: varchar("name", { length: 32 }).notNull(),  // Role name
   description: text("description"),                 // Optional role description
 });
 
-export const users = pgTable("users", {
+export const usersTable = pgTable("users", {
   id: bigint("id", { mode: "number" })
     .primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
@@ -24,5 +24,5 @@ export const users = pgTable("users", {
     .notNull(),
   deletedAt: timestamp("deleted_at"),                // Nullable for soft deletion
   roleId: bigint("role_id", { mode: "number" })      // Foreign key to roles.id
-    .references(() => roles.id)                      // Defining the foreign key relationship
+    .references(() => rolesTable.id)                      // Defining the foreign key relationship
 });
