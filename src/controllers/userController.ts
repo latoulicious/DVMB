@@ -1,116 +1,62 @@
 import { Request, Response } from 'express';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { usersTable } from '../db/schema';
+import { userService } from '../services/userService';
 
-const db = drizzle(process.env.DATABASE_URL!);
-
-// Create a new user
-export const createUser = async (req: Request, res: Response) => {
-    try {
-        const { email, password, name, gender, roleId } = req.body;
-        const newUser = await db.insert(usersTable).values({
-            email,
-            password,
-            name,
-            gender,
-            roleId,
-        }).returning();
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to create user' });
-    }
-};
-
-// Get all users
-export const getUsers = async (req: Request, res: Response) => {
-    try {
-        const allUsers = await db.select().from(usersTable);
-        res.status(200).json(allUsers);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch users' });
-    }
-};
-
-// Get a single user by ID
-export const getUserById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const user = await db
-            .select()
-            .from(usersTable)
-            .where(usersTable.id, id) // Use the column directly with the value
-            .single();
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+export const userController = {
+    async createUser(req: Request, res: Response) {
+        try {
+          const newUser = await userService.createUser(req.body);
+          res.status(201).json(newUser);
+        } catch (error) {
+          console.error('Failed to create user:', error);
+          res.status(500).json({ error: 'Failed to create user', details: (error as Error).message });
         }
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user' });
-    }
-};
+      },
 
-
-
-// Update a user by ID
-export const updateUser = async (req: Request, res: Response) => {
+  async getAllUsers(req: Request, res: Response) {
     try {
-        const { id } = req.params;
-        const { email, password, name, gender, status, roleId } = req.body;
-        const updatedUser = await db
-            .update(usersTable)
-            .set({
-                email,
-                password,
-                name,
-                gender,
-                status,
-                roleId,
-                updatedAt: new Date(),
-            })
-            .where(usersTable.id, id) // Use the column directly with the value
-            .returning();
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json(updatedUser);
+      const users = await userService.getAllUsers();
+      res.json(users);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update user' });
+      res.status(500).json({ error: 'Failed to fetch users' });
     }
-};
+  },
 
-
-// Delete a user by ID with soft or hard delete
-export const deleteUser = async (req: Request, res: Response) => {
+  async getUserById(req: Request, res: Response) {
     try {
-        const { id } = req.params;
-        const { hardDelete } = req.query;  // Determine hard delete through query param
-        
-        let deletedUser;
-        if (hardDelete === 'true') {
-            // Perform hard delete (completely remove)
-            deletedUser = await db
-                .deleteFrom(usersTable)
-                .where(usersTable.id, id) // Direct comparison with the column
-                .returning();
-            if (!deletedUser || deletedUser.length === 0) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            return res.status(200).json({ message: 'User permanently deleted' });
-        } else {
-            // Perform soft delete (mark as deleted)
-            deletedUser = await db
-                .update(usersTable)
-                .set({
-                    deletedAt: new Date(), // Mark as deleted by setting deletedAt timestamp
-                })
-                .where(usersTable.id, id) // Direct comparison with the column
-                .returning();
-            if (!deletedUser || deletedUser.length === 0) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            res.status(200).json(deletedUser);
-        }
+      const user = await userService.getUserById(Number(req.params.id));
+      if (user) {
+        res.json(user);
+      } else {
+        res.status(404).json({ error: 'User not found' });
+      }
     } catch (error) {
-        res.status(500).json({ error: 'Failed to delete user' });
+      res.status(500).json({ error: 'Failed to fetch user' });
     }
+  },
+
+  async updateUser(req: Request, res: Response) {
+    try {
+      const updatedUser = await userService.updateUser(Number(req.params.id), req.body);
+      if (updatedUser) {
+        res.json(updatedUser);
+      } else {
+        res.status(404).json({ error: 'User not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update user' });
+    }
+  },
+
+  async deleteUser(req: Request, res: Response) {
+    try {
+      const deleted = await userService.deleteUser(Number(req.params.id));
+      if (deleted) {
+        res.status(204).send(); // Success, no content
+      } else {
+        res.status(404).json({ error: 'User not found' }); // Not found
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to delete user' }); // Server error
+    }
+  },  
 };
