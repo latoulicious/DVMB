@@ -1,18 +1,21 @@
-import { bigint, pgTable, varchar, text, boolean, timestamp } from "drizzle-orm/pg-core";
+import { bigint, pgTable, pgEnum, varchar, text, boolean, timestamp } from "drizzle-orm/pg-core";
+
+export const genderEnum = pgEnum("gender", ["M", "F"]);
 
 export const roles = pgTable("roles", {
   id: bigint("id", { mode: "number" })
     .primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),  // Role name
+  name: varchar("name", { length: 32 }).notNull(),  // Role name
   description: text("description"),                 // Optional role description
 });
 
 export const users = pgTable("users", {
   id: bigint("id", { mode: "number" })
     .primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),
-  email: varchar("email", { length: 256 }).notNull().unique(),
-  gender: varchar("gender", { length: 1 }).notNull(), // "M" or "F"
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  gender: genderEnum(),
   status: boolean("status").notNull().default(true),  // True for active, False for inactive
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
