@@ -1,4 +1,4 @@
-import { eq, isNull } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 import bcrypt from 'bcrypt'
 import { db } from '../db/index'
 import { usersTable } from '../db/schema'
@@ -31,6 +31,19 @@ export const userService = {
       return user
     } catch (error) {
       console.error(`Error fetching user with ID ${id}:`, error)
+      throw new Error('Failed to fetch user')
+    }
+  },
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      const [user] = await db
+        .select()
+        .from(usersTable)
+        .where(and(eq(usersTable.email, email), isNull(usersTable.deletedAt))) // Assuming `email` exists in your schema
+      return user
+    } catch (error) {
+      console.error(`Error fetching user with email ${email}:`, error)
       throw new Error('Failed to fetch user')
     }
   },
