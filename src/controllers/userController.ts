@@ -2,23 +2,6 @@ import { Request, Response } from 'express'
 import { userService } from '../services/userService'
 
 export const userController = {
-  async createUser(req: Request, res: Response) {
-    try {
-      const newUser = await userService.createUser(req.body)
-      res.status(201).json({
-        message: 'User created successfully',
-        user: newUser,
-        status: 'success'
-      })
-    } catch (error) {
-      res.status(500).json({
-        error: 'Failed to create user',
-        details: (error as Error).message,
-        status: 'error'
-      })
-    }
-  },
-
   async getAllUsers(req: Request, res: Response) {
     try {
       const users = await userService.getAllUsers()
@@ -55,6 +38,23 @@ export const userController = {
     } catch (error) {
       res.status(500).json({
         error: 'Failed to fetch user',
+        details: (error as Error).message,
+        status: 'error'
+      })
+    }
+  },
+
+  async createUser(req: Request, res: Response) {
+    try {
+      const newUser = await userService.createUser(req.body)
+      res.status(201).json({
+        message: 'User created successfully',
+        user: newUser,
+        status: 'success'
+      })
+    } catch (error) {
+      res.status(500).json({
+        error: 'Failed to create user',
         details: (error as Error).message,
         status: 'error'
       })
