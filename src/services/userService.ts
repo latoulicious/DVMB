@@ -1,4 +1,5 @@
 import { eq, isNull } from 'drizzle-orm'
+import bcrypt from 'bcrypt'
 import { db } from '../db/index'
 import { usersTable } from '../db/schema'
 
@@ -36,7 +37,17 @@ export const userService = {
 
   async createUser(userData: UserInput): Promise<User> {
     try {
-      const [newUser] = await db.insert(usersTable).values(userData).returning()
+      // Hash the password before saving
+      const hashedPassword = await bcrypt.hash(userData.password, 10)
+      const userDataWithHashedPassword = {
+        ...userData,
+        password: hashedPassword
+      }
+
+      const [newUser] = await db
+        .insert(usersTable)
+        .values(userDataWithHashedPassword)
+        .returning()
       return newUser
     } catch (error) {
       console.error('Error creating user:', error)

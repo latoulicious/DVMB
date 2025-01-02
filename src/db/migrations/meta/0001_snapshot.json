@@ -102,9 +102,7 @@
         "karyawan_email_unique": {
           "name": "karyawan_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -217,12 +215,8 @@
           "name": "users_role_id_roles_id_fk",
           "tableFrom": "users",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["role_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -232,9 +226,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -246,10 +238,7 @@
     "public.gender": {
       "name": "gender",
       "schema": "public",
-      "values": [
-        "M",
-        "F"
-      ]
+      "values": ["M", "F"]
     }
   },
   "schemas": {},
