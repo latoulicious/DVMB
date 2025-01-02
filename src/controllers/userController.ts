@@ -1,62 +1,124 @@
-import { Request, Response } from 'express';
-import { userService } from '../services/userService';
+import { Request, Response } from 'express'
+import { userService } from '../services/userService'
 
 export const userController = {
-    async createUser(req: Request, res: Response) {
-        try {
-          const newUser = await userService.createUser(req.body);
-          res.status(201).json(newUser);
-        } catch (error) {
-          console.error('Failed to create user:', error);
-          res.status(500).json({ error: 'Failed to create user', details: (error as Error).message });
-        }
-      },
+  async createUser(req: Request, res: Response) {
+    try {
+      const newUser = await userService.createUser(req.body)
+      res.status(201).json({
+        message: 'User created successfully',
+        user: newUser,
+        status: 'success'
+      })
+    } catch (error) {
+      res.status(500).json({
+        error: 'Failed to create user',
+        details: (error as Error).message,
+        status: 'error'
+      })
+    }
+  },
 
   async getAllUsers(req: Request, res: Response) {
     try {
-      const users = await userService.getAllUsers();
-      res.json(users);
+      const users = await userService.getAllUsers()
+      res.status(200).json({
+        message: 'Users fetched successfully',
+        users,
+        status: 'success'
+      })
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch users' });
+      res.status(500).json({
+        error: 'Failed to fetch users',
+        details: (error as Error).message,
+        status: 'error'
+      })
     }
   },
 
   async getUserById(req: Request, res: Response) {
     try {
-      const user = await userService.getUserById(Number(req.params.id));
+      const user = await userService.getUserById(Number(req.params.id))
       if (user) {
-        res.json(user);
+        res.status(200).json({
+          message: 'User fetched successfully',
+          user,
+          status: 'success'
+        })
       } else {
-        res.status(404).json({ error: 'User not found' });
+        res.status(404).json({
+          error: 'User not found',
+          userId: req.params.id,
+          status: 'failure'
+        })
       }
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch user' });
+      res.status(500).json({
+        error: 'Failed to fetch user',
+        details: (error as Error).message,
+        status: 'error'
+      })
     }
   },
 
   async updateUser(req: Request, res: Response) {
     try {
-      const updatedUser = await userService.updateUser(Number(req.params.id), req.body);
+      const updatedUser = await userService.updateUser(
+        Number(req.params.id),
+        req.body
+      )
       if (updatedUser) {
-        res.json(updatedUser);
+        res.status(200).json({
+          message: 'User updated successfully',
+          user: updatedUser,
+          status: 'success'
+        })
       } else {
-        res.status(404).json({ error: 'User not found' });
+        res.status(404).json({
+          error: 'User not found',
+          userId: req.params.id,
+          status: 'failure'
+        })
       }
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update user' });
+      res.status(500).json({
+        error: 'Failed to update user',
+        details: (error as Error).message,
+        status: 'error'
+      })
     }
   },
 
   async deleteUser(req: Request, res: Response) {
+    const userId = Number(req.params.id)
+    const isHardDelete = req.query.hardDelete === 'true'
+
     try {
-      const deleted = await userService.deleteUser(Number(req.params.id));
+      const deleted = await userService.deleteUser(userId, isHardDelete)
+
       if (deleted) {
-        res.status(204).send(); // Success, no content
+        res.status(200).json({
+          message: `User ${isHardDelete ? 'hard' : 'soft'}-deleted successfully`,
+          userId,
+          operation: isHardDelete ? 'hard delete' : 'soft delete',
+          status: 'success'
+        })
       } else {
-        res.status(404).json({ error: 'User not found' }); // Not found
+        res.status(404).json({
+          error: 'User not found',
+          userId,
+          operation: isHardDelete ? 'hard delete' : 'soft delete',
+          status: 'failure'
+        })
       }
     } catch (error) {
-      res.status(500).json({ error: 'Failed to delete user' }); // Server error
+      res.status(500).json({
+        error: 'Failed to delete user',
+        details: (error as Error).message,
+        userId,
+        operation: isHardDelete ? 'hard delete' : 'soft delete',
+        status: 'error'
+      })
     }
-  },  
-};
+  }
+}

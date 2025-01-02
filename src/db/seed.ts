@@ -1,5 +1,5 @@
-import { db } from './index';
-import { rolesTable } from './schema';
+import { db } from './index'
+import { rolesTable } from './schema'
 
 async function seedRoles() {
   try {
@@ -8,11 +8,11 @@ async function seedRoles() {
       { name: 'Admin', description: 'Administrator' },
       { name: 'Staff', description: 'Staff' },
       { name: 'User', description: 'User' }
-    ]);
-    console.log('Roles seeded successfully');
+    ])
+    console.log('Roles seeded successfully')
   } catch (error) {
-    console.error('Error seeding roles:', error);
+    console.error('Error seeding roles:', error)
   }
 }
 
-seedRoles();
+seedRoles()

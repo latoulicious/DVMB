@@ -8,6 +8,13 @@
       "when": 1735750344855,
       "tag": "0000_brown_red_ghost",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1735790586608,
+      "tag": "0001_red_obadiah_stane",
+      "breakpoints": true
     }
   ]
 }
